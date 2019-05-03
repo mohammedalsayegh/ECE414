@@ -114,8 +114,7 @@ disp('Kp = ');
 disp(C_pi.Kp);
 disp('Ki = ');
 disp(C_pi.Ki);
-disp('The step info of PI controller using stepinfo:');
-disp(stepinfo(C_pi));
+
 disp('The step info of PI controller using getallspecs:');
 disp(getallspecs(G,C_pi));
 

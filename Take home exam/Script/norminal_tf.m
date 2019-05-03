@@ -52,8 +52,9 @@ hold off;
 % The norminal transfer function 
 G = zpk([],pnom,knom)
 
+%%
 % Plant plot with range allowed to use for controller
-figure(22);
+figure(2);
 hold on;
 title('Plant Poles and Norminal Pole Locations')
 plot(p,'x','Color','red');
@@ -65,4 +66,5 @@ rlocus(G)
 grid on;
 hold off;
 
+%%
 specs_table(G);

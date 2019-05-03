@@ -62,8 +62,8 @@ for(conrtoller_num = 0:9)
     case 7
         %%
         type = "A unity feedback lineara lgebraic Controller w/ stepitae";
-        [N,D] = stepitae(6,5,10,'classic');
-
+        [N,D] = stepitae(5,0.55,10,'classic');
+        
         % D is the controller in tf or zpk form.
         % T is the closed loop transfer function in zpk form.
         % Tu is the control effort transfer function in zpk form.
@@ -72,12 +72,11 @@ for(conrtoller_num = 0:9)
 
         [D,T,Tu,Td,L]= lamdesign(G,D);
         c = getallspecs(G,D);
-        nyquist(L);
         
     case 8
         %%
         type = "A unity feedback lineara lgebraic Controller w/ stepshape";
-        [N,D] = stepshape(6,5,10);
+        [N,D] = stepshape(6,0, 0.55, 0.8);
 
         % D is the controller in tf or zpk form.
         % T is the closed loop transfer function in zpk form.
@@ -90,25 +89,20 @@ for(conrtoller_num = 0:9)
         
     case 9
         %%
+        s = tf('s');
+        g = G / s;
         type = "2-parameters linear-alg controller";
-        T = steplqr(G,0.2698);
+        T = steplqr(g,4);
 
         % F is the feedforward controller in zpk form.
         % H is the feedback controller in zpk form.
         % Tu is the control effort transfer function zpk form.
         % Td is the disturbance transfer fuction in zpk form.
         % L is the loop transfer function G(s)*H(s) in zpk form.
-
-        T = tf(T);
-        s = tf('s');
-        s.Numerator{1,1} = T.Denominator{1,1};
-
-        R = roots(s.Numerator{1,1});
-        R = real(R);
-        R = R';
-
-        [F,H,Tu,Td,L]= lamdesign(G,T,R);
-        c = getallspecs(G,H);
+        R = [-140 -120 -100];
+        
+        [F,H,Tu,Td,L]= lamdesign(g,T,R);
+        c = getallspecs(g,F,H);
     end
         
     if(conrtoller_num > 0)
@@ -164,16 +158,70 @@ for i = 1:10
                 pidsearch_calibration(G,type);
             case 8
                 disp("A unity feedback lineara lgebraic Controller w/ stepitae");
-                [N,D] = stepitae(6,5,10,'classic');
-                [D,T,Tu,Td,L]= lamdesign(G,D);
-                figure(8);
-                nyquist(L);
             case 9
                 disp("A unity feedback lineara lgebraic Controller w/ stepshape");
-                [N,D] = stepshape(6,5,10);
+                [N,D] = stepshape(6,0, 0.55, 0.8);
+
+                % D is the controller in tf or zpk form.
+                % T is the closed loop transfer function in zpk form.
+                % Tu is the control effort transfer function in zpk form.
+                % Td is the disturbance transfer fuction in zpk form.
+                % L is the loop transfer function D(s)*G(s) in zpk form.
+
                 [D,T,Tu,Td,L]= lamdesign(G,D);
+                c = getallspecs(G,D);
+                %% Plot a unity feedback LAM system Step Response w/ stepshape
+                figure(8);
+                hold on;
+                T = feedback(L,1);
+                subplot(1,2,1)
+                step(T)
+                grid on;
+
+                title('System Step Response of a unity feedback LAM system w/ stepshape');
+
+                % Plot a unity feedback LAM system contoller effort step response
+                subplot(1,2,2)
+                step(Tu)
+                grid on;
+
+                title('Contoller Effort Step Response of a unity feedback LAM system w/ stepshape');
+                hold off;
             case 10
                 disp("two parameter linear algebraic design controller");
+                s = tf('s');
+                g = G / s;
+                type = "2-parameters linear-alg controller";
+                T = steplqr(g,4);
+
+                % F is the feedforward controller in zpk form.
+                % H is the feedback controller in zpk form.
+                % Tu is the control effort transfer function zpk form.
+                % Td is the disturbance transfer fuction in zpk form.
+                % L is the loop transfer function G(s)*H(s) in zpk form.
+                R = [-140 -120 -100];
+
+                [F,H,Tu,Td,L]= lamdesign(g,T,R);
+                disp('This is L:');
+                L
+                
+                %% Plot two parameter LAM system Step Response
+                figure(8);
+                hold on;
+                T = feedback(L,1);
+                subplot(1,2,1)
+                step(T)
+                grid on;
+
+                title('System Step Response of two parameter LAM');
+
+                % Plot two parameter LAM system Contoller Effort Step Response
+                subplot(1,2,2)
+                step(Tu)
+                grid on;
+
+                title('Contoller Effort Step Response of two parameter LAM');
+                hold off;
         end
     end
 end
